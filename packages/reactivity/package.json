@@ -1,0 +1,14 @@
+{
+  "name": "@my-vue-next/reactivity",
+  "version": "1.0.0",
+  "description": "@my-vue-next/reactivity",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@my-vue-next/shared": "workspace:^1.0.0"
+  }
+}
