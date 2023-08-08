@@ -17,6 +17,7 @@ describe("reactive", () => {
   });
 
   test("nested reactives", () => {
+    // 1. 定义多维对象
     const original = {
       nested: {
         foo: 1,
@@ -24,15 +25,18 @@ describe("reactive", () => {
       array: [{ bar: 2 }],
     };
     const observed = reactive(original);
+    // 2. 是响应式对象
     expect(isReactive(observed.nested)).toBe(true);
+    // 3. 内部属性也是响应式对象
     expect(isReactive(observed.array)).toBe(true);
+    // 4. 内部属性的内部属性也是响应式对象
     expect(isReactive(observed.array[0])).toBe(true);
   });
 
-  // test("toRaw", () => {
-  //   const original = { foo: 1 };
-  //   const observed = reactive(original);
-  //   expect(toRaw(observed)).toBe(original);
-  //   expect(toRaw(original)).toBe(original);
-  // });
+  test("toRaw", () => {
+    const original = { foo: 1 };
+    const observed = reactive(original);
+    expect(toRaw(observed)).toBe(original);
+    expect(toRaw(original)).toBe(original);
+  });
 });
