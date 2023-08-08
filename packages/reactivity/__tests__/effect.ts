@@ -8,15 +8,15 @@ describe("effect", () => {
     expect(fnSpy).toHaveBeenCalledTimes(1);
   });
 
-  // it("能监听单个属性的变化", () => {
-  //   let dummy;
-  //   const counter = reactive({ num: 0 });
-  //   effect(() => (dummy = counter.num));
+  it("should effect ", () => {
+    let dummy;
+    const counter = reactive({ num: 0 });
+    effect(() => (dummy = counter.num + 1));
 
-  //   expect(dummy).toBe(0);
-  //   counter.num = 7;
-  //   expect(dummy).toBe(7);
-  // });
+    expect(dummy).toBe(0);
+    counter.num = 7;
+    expect(dummy).toBe(8);
+  });
 
   // it("能监听多个属性的变化", () => {
   //   let dummy;
