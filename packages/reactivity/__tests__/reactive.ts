@@ -36,6 +36,7 @@ describe("reactive", () => {
   test("toRaw", () => {
     const original = { foo: 1 };
     const observed = reactive(original);
+    // 1. toRaw返回的是原始对象
     expect(toRaw(observed)).toBe(original);
     expect(toRaw(original)).toBe(original);
   });

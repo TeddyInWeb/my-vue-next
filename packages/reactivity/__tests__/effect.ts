@@ -5,16 +5,17 @@ describe("effect", () => {
   it("should call only once", () => {
     const fnSpy = jest.fn(() => {});
     effect(fnSpy);
+    // 1. 回调函数只能被执行一次
     expect(fnSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("should effect ", () => {
+  it("basic effect", () => {
     let dummy;
-    const counter = reactive({ num: 0 });
-    effect(() => (dummy = counter.num + 1));
+    const counter = reactive({ count: 0 });
+    effect(() => (dummy = counter.count + 1));
 
-    expect(dummy).toBe(0);
-    counter.num = 7;
+    expect(dummy).toBe(1);
+    counter.count = 7;
     expect(dummy).toBe(8);
   });
 

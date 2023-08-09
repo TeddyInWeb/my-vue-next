@@ -1,3 +1,4 @@
+import { track } from "./effect";
 import { isObject } from "../../shared/src/index";
 
 const enum ReactiveFlags {
@@ -23,6 +24,10 @@ export function reactive(target: Record<any, any>) {
       }
 
       const result = Reflect.get(target, key, receiver)
+
+      // 依赖收集
+      track(target, key)
+
       return result
     },
     set(target, key, value, receiver) {
