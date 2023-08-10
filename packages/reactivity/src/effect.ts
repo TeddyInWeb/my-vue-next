@@ -34,9 +34,9 @@ export function track(target, key) {
   if (!depsMap) {
     // 初始化依赖容器
     depsMap = new WeakMap()
-    targetMap.set(target, new WeakMap())
+    targetMap.set(target, depsMap)
   }
-
+  console.log('track', target, key)
   // 获取到对应的依赖, 也就是用户传进来的fn
   let dep = depsMap.get(key)
   if (!dep) {
@@ -46,6 +46,8 @@ export function track(target, key) {
 
   trackEffects(dep)
 
+  console.log('track-1', targetMap)
+  console.log('track-2', dep)
 }
 
 /**
@@ -55,6 +57,16 @@ export function track(target, key) {
 export function trackEffects(dep) {
   // 已经收集的话，那么就不需要在收集一次了
   if (!dep.has(activeEffect)) {
-    dep.add(activeEffect)
+    dep.add(activeEffect) // 把ReacitveEffect实例收集到dep中
   }
+}
+
+/**
+ * 触发依赖
+ * @param target 
+ * @param type 
+ * @param key 
+ */
+export function trigger(target, type, key) {
+
 }
