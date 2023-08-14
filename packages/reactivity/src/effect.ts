@@ -4,7 +4,7 @@ import { createDep } from './dep'
 const targetMap = new WeakMap()
 // 当前正在收集依赖的ReactiveEffect实例
 // 因为JS是单线程, 所以能保证这个变量的唯一性
-let activeEffect = null
+let activeEffect: any = null
 
 class ReactiveEffect {
   private _fn: Function
@@ -12,10 +12,19 @@ class ReactiveEffect {
     this._fn = fn
   }
   run() {
+    activeEffect = this
     this._fn()
+    activeEffect = null
   }
 }
 
+/**
+ * effect函数
+ * 1. 创建ReactiveEffect实例
+ * 2. 执行run方法
+ * @param fn 
+ * @param options 
+ */
 export function effect(fn, options = {}) {
   const _effect = new ReactiveEffect(fn)
   _effect.run()
@@ -23,9 +32,22 @@ export function effect(fn, options = {}) {
 
 /**
  * 依赖收集
+ * 这里有三个关键概念: 目标对象容器depsMap, 依赖容器dep, 以及当前正在收集的依赖activeEffect
+ * 首先要理解一个关系链: 要建立订阅发布, 首先需要一个key, value键值对, key是目标对象本身, value是依赖容器, 这个kv对象就是depsMap.
+ * 而目标对象的每个属性(key)都可能存在多个依赖, 所以需要一个容器来存放依赖, 这个容器就是dep.
+ * 为什么需要这个depsMap? 因为一个目标对象可以存在多个依赖容器. 比如{ a: 1, b: 2 }, 目标对象有多个key, a和b, 但是a和b的依赖容器是不一样的.
+ * 举个例子: 
+ * let xa1, xa2, xb
+ * let target = reactive({ a: 1, b: 2 })
+ * effect(() => { xa1 = target.a + 1 })
+ * effect(() => { xa2 = target.a + 2 })
+ * effect(() => { xb = target.b + 2 })
+ * 那么对于target.a来说, 它的依赖容器里内容是() => { xa = target.a + 1 }, () => { xa = target.a + 2 }的实例, 即[ReactiveEffect, ReactiveEffect]
+ * 当target.a发生变化时, 会通知这两个依赖容器, 依次执行run方法, 从而更新xa1, xa2的值
+ * 那么最终depsMap是类似这样的结构(实际是个Map): { [Object]: { a: [ReactiveEffect, ReactiveEffect], b: [ReactiveEffect] } }
  * @param target 
  * @param key
- * 1. 
+ * 整体就是在形成 depsMap -> key -> dep -> activeEffect 的关系链
  */
 export function track(target, key) {
   // 获取目标对象的容器
@@ -33,10 +55,9 @@ export function track(target, key) {
   // 如果不存在目标对象容器, 则初始化
   if (!depsMap) {
     // 初始化依赖容器
-    depsMap = new WeakMap()
+    depsMap = new Map()
     targetMap.set(target, depsMap)
   }
-  console.log('track', target, key)
   // 获取到对应的依赖, 也就是用户传进来的fn
   let dep = depsMap.get(key)
   if (!dep) {
@@ -46,8 +67,7 @@ export function track(target, key) {
 
   trackEffects(dep)
 
-  console.log('track-1', targetMap)
-  console.log('track-2', dep)
+  console.log('track-1', ...depsMap)
 }
 
 /**
@@ -67,6 +87,24 @@ export function trackEffects(dep) {
  * @param type 
  * @param key 
  */
-export function trigger(target, type, key) {
+export function trigger(target, key) {
+  const depsMap = targetMap.get(target)
+  if (!depsMap) return
+  console.log('trigger-1', depsMap)
+  const dep = depsMap.get(key)
+  const effects: Array<any> = []
+  effects.push(...dep)
 
+  triggerEffects(createDep(effects))
+}
+
+/**
+ * 触发依赖执行effect.run
+ * @param dep 
+ */
+export function triggerEffects(dep) {
+  for (const effect of dep) {
+    console.log('triggerEffects', effect)
+    effect.run()
+  }
 }

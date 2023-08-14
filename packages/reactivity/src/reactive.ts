@@ -1,4 +1,4 @@
-import { track } from "./effect";
+import { track, trigger } from "./effect";
 import { isObject } from "../../shared/src/index";
 
 const enum ReactiveFlags {
@@ -32,6 +32,7 @@ export function reactive(target: Record<any, any>) {
     },
     set(target, key, value, receiver) {
       const result = Reflect.set(target, key, value, receiver);
+      trigger(target, key)
       return result
     }
   })
