@@ -12,9 +12,12 @@ class ReactiveEffect {
     this._fn = fn
   }
   run() {
+    // 把this赋值给全局变量activeEffect
     activeEffect = this
+    // 执行用户传入的fn
     this._fn()
-    activeEffect = null
+    // run之后进行一系列重置操作
+    resetEffect()
   }
 }
 
@@ -83,15 +86,20 @@ export function trackEffects(dep) {
 
 /**
  * 触发依赖
+ * 整体思路就是: 找到对应的依赖容器dep, 然后遍历容器, 通过effect.run(), 执行dep中的依赖
+ * 从而达到更新响应式对象的目标
  * @param target 
  * @param type 
  * @param key 
  */
 export function trigger(target, key) {
+  // 根据目标对象target获取对应的depsMap
   const depsMap = targetMap.get(target)
   if (!depsMap) return
-  console.log('trigger-1', depsMap)
+  // 根据key获取对应的依赖容器dep
   const dep = depsMap.get(key)
+  // 依赖effect有多个, 所以需要一个数组来存放
+  // 这里重新用一个新的数据变量来存放dep, 是因为在遍历的过程中, dep可能会发生变化, 会导致遍历出错
   const effects: Array<any> = []
   effects.push(...dep)
 
@@ -103,8 +111,15 @@ export function trigger(target, key) {
  * @param dep 
  */
 export function triggerEffects(dep) {
+  // 依赖可能有多个
   for (const effect of dep) {
-    console.log('triggerEffects', effect)
     effect.run()
   }
+}
+
+/**
+ * 重置effect
+ */
+export function resetEffect () {
+  activeEffect = null
 }
