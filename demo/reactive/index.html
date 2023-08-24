@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <div id="app"></div>
+</html>
+
+<script>
+/* 
+ 这段代码非常非常常见, 这里其实就是一种"订阅模式"
+ 视图<P>订阅了info这个响应式对象.
+ 当这个info对象, 被获取(get)或者被改变(set)时, 调度中心都会进行监听, 然后通知<P>标签进行更新
+*/
+const { createApp, reactive, h } = Vue
+
+createApp({
+  setup() {
+    const info = reactive({ name: 'teddy' }) // 必须要定义reactive对象, 否则修改不会更新视图
+    
+    // 更新对象属性的值
+    setTimeout(() => {
+        info.name = 'ace'
+    }, 2000)
+    
+    return {
+      info
+    }
+  },
+  render(context) {
+    console.log('context', context)
+    return h(
+      "div",
+      { tId: "helloWorld" },
+      [h('p', {}, `hello world message: ${context.info.name}`)]
+    )
+  },
+}).mount('#app')
+</script>
