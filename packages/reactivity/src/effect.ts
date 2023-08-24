@@ -90,7 +90,7 @@ export function track(target, key) {
   }
   // 获取到对应的依赖, 也就是用户传进来的fn
   let dep = depsMap.get(key)
-  console.log('track111', key, dep)
+
   if (!dep) {
     dep = createDep()
     depsMap.set(key, dep)

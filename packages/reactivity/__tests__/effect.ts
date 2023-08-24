@@ -47,27 +47,29 @@ describe("effect", () => {
     expect(b).toBe(3)
   })
 
-  // it("支持深度监听", () => {
-  //   let dummy
-  //   const counter = reactive({ nested: { num: 0 } })
-  //   effect(() => (dummy = counter.nested.num))
+  it("deep effect", () => {
+    let a
+    const counter = reactive({ nested: { num: 0, total: 1 } })
+    effect(() => (a = counter.nested.num + counter.nested.total))
 
-  //   expect(dummy).toBe(0)
-  //   counter.nested.num = 8
-  //   expect(dummy).toBe(8)
-  // })
+    expect(a).toBe(1)
+    counter.nested.num = 8
+    counter.nested.total = 10
+    expect(a).toBe(18)
+  })
 
-  // it("支持函数内变量的监听", () => {
-  //   let dummy
-  //   const counter = reactive({ num: 0 })
-  //   effect(() => (dummy = getNum()))
+  it("function effect", () => {
+    let a
+    const counter = reactive({ num: 0, total: 1 })
+    effect(() => (a = getNum()))
 
-  //   function getNum() {
-  //     return counter.num
-  //   }
+    function getNum() {
+      return counter.num + counter.total
+    }
 
-  //   expect(dummy).toBe(0)
-  //   counter.num = 2
-  //   expect(dummy).toBe(2)
-  // })
+    expect(a).toBe(1)
+    counter.num = 2
+    counter.total = 3
+    expect(a).toBe(5)
+  })
 })
